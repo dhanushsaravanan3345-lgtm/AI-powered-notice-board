@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusPulse AI - AI Powered College Notice Board</title>
+  <meta name="description" content="Intelligent notice publishing, grounded AI discovery, and personalized campus communication for college students and faculty.">
+  <meta name="keywords" content="college notice board, ai campus, student portal, rag question answering, btech aids">
+  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow" aria-hidden="true">
+    <div class="ambient-blob-1"></div>
+    <div class="ambient-blob-2"></div>
+  </div>
+
+  <div class="app-wrapper">
+    <!-- Top Header & Brand Bar -->
+    <header class="top-header">
+      <div class="navbar-container">
+        <!-- Logo & Title -->
+        <div class="brand-section" onclick="App.switchTab('feed')" role="banner">
+          <div class="brand-logo-icon">
+            <i class="bi bi-mortarboard-fill"></i>
+          </div>
+          <div class="brand-info">
+            <h1>CampusPulse AI</h1>
+            <div class="brand-badge">
+              <span class="pulse-dot"></span> Autonomous Notice Portal
+            </div>
+          </div>
+        </div>
+
+        <!-- Global Search Bar with keyboard shortcut -->
+        <div class="nav-search-bar" role="search">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" id="nav-search-input" placeholder="Search notices, exams, symposiums..." aria-label="Search notices">
+          <span class="kbd-shortcut">/</span>
+        </div>
+
+        <!-- Actions: Theme toggle, Notifications, User profile -->
+        <div class="nav-actions">
+          <!-- Notification Bell -->
+          <button class="btn-icon" id="notif-bell-btn" title="View Notifications" onclick="App.toggleNotificationDrawer()" aria-label="Notifications">
+            <i class="bi bi-bell-fill"></i>
+            <span class="notif-badge" id="notif-unread-badge" style="display:none;">0</span>
+          </button>
+
+          <!-- Theme Switcher -->
+          <button class="btn-icon" id="theme-toggle-btn" title="Toggle Dark/Light Mode" onclick="App.toggleTheme()" aria-label="Toggle theme">
+            <i class="bi bi-moon-stars-fill"></i>
+          </button>
+
+          <!-- Signed-in user -->
+          <div class="user-profile-badge">
+            <div class="avatar-initials" id="user-avatar-initials">PS</div>
+            <div class="user-profile-text">
+              <span class="user-name" id="user-display-name">Prof. Priya Sundaram</span>
+              <span class="user-role-label" id="user-display-role">Faculty · AI & DS</span>
+            </div>
+          </div>
+          <button type="button" class="btn-secondary" id="logout-btn" style="padding:0.4rem 0.75rem;" aria-label="Sign out">
+            <i class="bi bi-box-arrow-right"></i> Sign out
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs Bar -->
+    <nav class="tabs-navigation-bar" aria-label="Main Navigation">
+      <div class="tabs-container">
+        <button class="nav-tab-btn active" data-tab="feed" onclick="App.switchTab('feed')">
+          <i class="bi bi-grid-1x2-fill"></i> Notice Feed
+        </button>
+        <button class="nav-tab-btn" id="tab-btn-publish" data-tab="publish" onclick="App.switchTab('publish')">
+          <i class="bi bi-pencil-square" style="color:var(--primary);"></i> Faculty Studio (Post Feed)
+        </button>
+        <button class="nav-tab-btn" data-tab="ai" onclick="App.switchTab('ai')">
+          <i class="bi bi-stars" style="color:var(--accent);"></i> Ask the Board (AI)
+          <span class="tab-badge">Grounded RAG</span>
+        </button>
+        <button class="nav-tab-btn" id="tab-btn-admin" data-tab="admin" onclick="App.switchTab('admin')">
+          <i class="bi bi-speedometer2"></i> Campus Analytics
+        </button>
+        <button class="nav-tab-btn" data-tab="saved" onclick="App.switchTab('saved')">
+          <i class="bi bi-bookmark-star-fill" style="color:#f59e0b;"></i> Bookmarked
+        </button>
+      </div>
+    </nav>
+
+    <!-- Urgent Notice Banner Ticker -->
+    <aside class="urgent-ticker-bar" id="urgent-ticker-container" aria-label="Urgent Broadcast">
+      <div style="display:flex; align-items:center; gap:10px; max-width:1380px; width:100%; margin:0 auto;">
+        <span class="urgent-pill"><i class="bi bi-broadcast"></i> Urgent Alert</span>
+        <div style="flex:1; overflow:hidden;">
+          <div class="ticker-content" id="ticker-headline-text" style="cursor:pointer;" title="Click to view urgent circular">
+            End Semester Autonomous Theory Examination Timetable - Nov/Dec 2026 released. Check hall ticket details.
+          </div>
+        </div>
+        <button class="ticker-action-btn" onclick="App.switchTab('feed')">View Board</button>
+      </div>
+    </aside>
+
+    <!-- Main Container -->
+    <main class="main-content">
+      
+      <!-- ========================================== -->
+      <!-- VIEW 1: NOTICE FEED (Personalized Feed)    -->
+      <!-- ========================================== -->
+      <section id="view-feed" class="view-section active" aria-labelledby="feed-heading">
+        <!-- Personalized Greeting Card -->
+        <div class="hero-welcome-card">
+          <div class="hero-text">
+            <h2 id="hero-greeting-title">Welcome back, Faculty Member! 👨‍🏫</h2>
+            <p>
+              Active database feed for
+              <span class="audience-pill" id="hero-audience-pill">
+                <i class="bi bi-mortarboard-fill"></i> Artificial Intelligence & Data Science
+              </span>
+              <span style="font-size:0.75rem; color:var(--low); font-weight:700; margin-left:8px;">
+                <i class="bi bi-database-check"></i> Connected to Database
+              </span>
+            </p>
+          </div>
+          <div class="hero-quick-actions">
+            <button class="btn-primary" onclick="App.switchTab('publish')">
+              <i class="bi bi-plus-circle-fill"></i> Post Feed Notice
+            </button>
+            <button class="btn-secondary" onclick="App.switchTab('ai')">
+              <i class="bi bi-stars"></i> Test AI Assistant
+            </button>
+          </div>
+        </div>
+
+        <!-- Faculty Quick-Post Composer Card (Visible to Faculty) -->
+        <div id="faculty-quick-post-card" style="background:var(--bg-surface); border:1px solid var(--border-prominent); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:1.75rem; box-shadow:var(--shadow-sm);">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.85rem;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="width:10px; height:10px; border-radius:50%; background:var(--primary); display:inline-block;"></span>
+              <h3 style="font-size:1rem; font-weight:800; color:var(--text-main); margin:0;">
+                <i class="bi bi-megaphone-fill" style="color:var(--primary);"></i> Faculty Quick Post: Publish to Student Feed
+              </h3>
+            </div>
+            <span style="font-size:0.72rem; font-weight:700; background:var(--primary-light); color:var(--primary); padding:3px 8px; border-radius:6px;">
+              Saves to Database
+            </span>
+          </div>
+
+          <form id="quick-post-form" onsubmit="App.handleQuickPostSubmit(event)">
+            <div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:10px; margin-bottom:10px;">
+              <input type="text" id="quick-post-title" class="form-control" placeholder="Notice Title (e.g. Lab Exam Rescheduled / Guest Lecture)" required>
+              <select id="quick-post-category" class="filter-select" style="width:100%;" required>
+                <option value="Academic">Academic</option>
+                <option value="Examinations">Examinations</option>
+                <option value="Events & Symposium">Events & Symposium</option>
+                <option value="Placements">Placements</option>
+                <option value="Circulars & Admin">Circulars & Admin</option>
+              </select>
+              <select id="quick-post-priority" class="filter-select" style="width:100%;" required>
+                <option value="Medium">Medium Priority</option>
+                <option value="High">⚡ High Priority</option>
+                <option value="Urgent">🚨 Urgent</option>
+                <option value="Low">Low Priority</option>
+              </select>
+            </div>
+
+            <textarea id="quick-post-content" class="form-control" style="min-height:65px; margin-bottom:10px;" placeholder="Write official circular instructions, date, time, and instructions for students..." required></textarea>
+
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+              <div style="display:flex; align-items:center; gap:12px; font-size:0.8rem; color:var(--text-muted);">
+                <span><strong>Target:</strong> AI & Data Science (All Years)</span>
+                <label style="cursor:pointer; display:inline-flex; align-items:center; gap:4px;">
+                  <input type="checkbox" id="quick-post-auto-ai" checked> Auto-generate AI summary
+                </label>
+              </div>
+
+              <button type="submit" class="btn-primary" id="btn-quick-post-submit">
+                <i class="bi bi-send-fill"></i> Post to Database Feed
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Filter & Search Controls Panel -->
+        <div class="filter-panel">
+          <div class="category-pills-row" id="category-pills-row">
+            <!-- Dynamically populated -->
+          </div>
+
+          <div class="filter-dropdowns-row">
+            <div style="position:relative; flex:1; min-width:200px;">
+              <input type="text" id="filter-search-input" class="form-control" placeholder="Search keywords..." style="padding:0.45rem 0.8rem; font-size:0.82rem;">
+            </div>
+
+            <select id="filter-dept-select" class="filter-select" aria-label="Filter Department">
+              <option value="All">All Departments</option>
+              <option value="Artificial Intelligence & Data Science">AI & Data Science</option>
+              <option value="Computer Science & Engineering">Computer Science</option>
+              <option value="Electronics & Communication Engineering">Electronics & Comm.</option>
+              <option value="Information Technology">Information Tech</option>
+            </select>
+
+            <select id="filter-year-select" class="filter-select" aria-label="Filter Year">
+              <option value="All">All Years</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+
+            <select id="filter-priority-select" class="filter-select" aria-label="Filter Priority">
+              <option value="All">All Priorities</option>
+              <option value="Urgent">Urgent Priority</option>
+              <option value="High">High Priority</option>
+              <option value="Medium">Medium Priority</option>
+              <option value="Low">Low Priority</option>
+            </select>
+
+            <button class="filter-chip-clear" onclick="App.clearAllFilters()">
+              <i class="bi bi-x-circle"></i> Clear Filters
+            </button>
+
+            <span class="results-count-text" id="results-count-text">Showing notices</span>
+          </div>
+        </div>
+
+        <!-- Notices Cards Grid -->
+        <div class="notices-grid" id="notices-grid-container" aria-live="polite">
+          <!-- Populated by JavaScript -->
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 2: "ASK THE BOARD" (AI RAG ASSISTANT) -->
+      <!-- ========================================== -->
+      <section id="view-ai" class="view-section" aria-labelledby="ai-heading">
+        <div class="ai-view-container">
+          <div class="ai-hero-header">
+            <div class="ai-sparkle-icon">
+              <i class="bi bi-stars"></i>
+            </div>
+            <h2 id="ai-heading">Ask the Board ✨</h2>
+            <p>Grounded Campus AI Assistant. Answers academic questions strictly using notices from the database without hallucinations.</p>
+          </div>
+
+          <div class="ai-suggested-prompts-card">
+            <div class="prompts-label">
+              <i class="bi bi-lightbulb-fill" style="color:#f59e0b;"></i> Suggested Campus Questions (Click to Ask)
+            </div>
+            <div class="prompts-chips-grid" id="suggested-prompts-container">
+              <!-- Populated by aiService -->
+            </div>
+          </div>
+
+          <div class="ai-chat-thread" id="ai-chat-thread">
+            <div class="chat-bubble-ai">
+              <div class="chat-ai-header">
+                <div class="chat-ai-badge">
+                  <i class="bi bi-robot"></i> Campus AI Assistant
+                </div>
+                <div class="chat-ai-provider">RAG Grounded Retrieval</div>
+              </div>
+              <div class="chat-ai-content">
+                Hello! I am your AI campus assistant. Ask me questions about circulars, schedules, exams, or events:
+                <ul>
+                  <li><em>"What are the upcoming events for third year?"</em></li>
+                  <li><em>"When do the autonomous semester theory examinations start?"</em></li>
+                  <li><em>"What is the eligibility for Microsoft & Google internship drive?"</em></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <form class="ai-input-wrapper" id="ai-question-form">
+            <i class="bi bi-chat-text" style="color:var(--text-muted); font-size:1.1rem;"></i>
+            <input type="text" id="ai-query-input" class="ai-input-field" placeholder="Ask anything about exams, timetable, symposiums, mini-project, or internships..." aria-label="Ask the notice board">
+            <button type="submit" class="ai-send-btn" id="ai-send-btn" title="Send Question" aria-label="Send question">
+              <i class="bi bi-arrow-up-short"></i>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 3: FACULTY STUDIO (PUBLISH NOTICES)   -->
+      <!-- ========================================== -->
+      <section id="view-publish" class="view-section" aria-labelledby="publish-heading">
+        <div style="max-width:960px; margin:0 auto;">
+          <div style="margin-bottom:1.5rem;">
+            <h2 id="publish-heading" style="font-size:1.6rem; font-weight:800; color:var(--text-main);">Faculty Notice Studio ✍️</h2>
+            <p style="color:var(--text-muted); font-size:0.88rem;">Create official circulars with custom audience targeting and automated AI summarization.</p>
+          </div>
+
+          <div class="form-card-container">
+            <form id="publish-notice-form">
+              <div class="form-group">
+                <label for="notice-form-title" class="form-label">Notice Title *</label>
+                <input type="text" id="notice-form-title" class="form-control" placeholder="e.g. Schedule for Phase-1 Mini-Project Review" required>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="notice-form-category" class="form-label">Category *</label>
+                  <select id="notice-form-category" class="form-control" required>
+                    <option value="Academic">Academic</option>
+                    <option value="Examinations">Examinations</option>
+                    <option value="Placements">Placements</option>
+                    <option value="Events & Symposium">Events & Symposium</option>
+                    <option value="Sports & Culture">Sports & Culture</option>
+                    <option value="Circulars & Admin">Circulars & Admin</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="notice-form-priority" class="form-label">Priority Level *</label>
+                  <select id="notice-form-priority" class="form-control" required>
+                    <option value="Medium">Medium Priority</option>
+                    <option value="High">High Priority (Alerts Students)</option>
+                    <option value="Urgent">Urgent (Broadcast Banner & Alerts)</option>
+                    <option value="Low">Low Priority</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Target Departments (Select Audience)</label>
+                <div class="audience-selector-box">
+                  <label class="audience-checkbox-label">
+                    <input type="checkbox" class="dept-checkbox" value="All" checked> All Departments
+                  </label>
+                  <label class="audience-checkbox-label">
+                    <input type="checkbox" class="dept-checkbox" value="Artificial Intelligence & Data Science"> AI & Data Science
+                  </label>
+                  <label class="audience-checkbox-label">
+                    <input type="checkbox" class="dept-checkbox" value="Computer Science & Engineering"> CSE
+                  </label>
+                  <label class="audience-checkbox-label">
+                    <input type="checkbox" class="dept-checkbox" value="Electronics & Communication Engineering"> ECE
+                  </label>
+                  <label class="audience-checkbox-label">
+                    <input type="checkbox" class="dept-checkbox" value="Information Technology"> IT
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Target Academic Years</label>
+                <div class="audience-selector-box">
+                  <label class="audience-checkbox-label">
+                    <input type="checkbox" class="year-checkbox" value="All" checked> All Years
+                  </label>
+                  <label class="audience-checkbox-label">
+                    <input type="checkbox" class="year-checkbox" value="1st Year"> 1st Year
+                  </label>
+                  <label class="audience-checkbox-label">
+                    <input type="checkbox" class="year-checkbox" value="2nd Year"> 2nd Year
+                  </label>
+                  <label class="audience-checkbox-label">
+                    <input type="checkbox" class="year-checkbox" value="3rd Year"> 3rd Year
+                  </label>
+                  <label class="audience-checkbox-label">
+                    <input type="checkbox" class="year-checkbox" value="4th Year"> 4th Year
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label for="notice-form-expiry" class="form-label">Notice Expiry Date (Optional)</label>
+                  <input type="date" id="notice-form-expiry" class="form-control">
+                </div>
+
+                <div class="form-group" style="justify-content:center;">
+                  <label class="audience-checkbox-label" style="margin-top:1.5rem;">
+                    <input type="checkbox" id="notice-form-pinned"> Pin notice to top of feed
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                  <label for="notice-form-content" class="form-label" style="margin:0;">Notice Content & Instructions *</label>
+                  <button type="button" class="btn-secondary" style="font-size:0.72rem; padding:0.25rem 0.65rem;" onclick="App.autoFillMiniProjectTemplate()" title="1-Click Auto Fill Mini Project Review Circular">
+                    <i class="bi bi-magic"></i> Auto-Fill Mini Project Review
+                  </button>
+                </div>
+                <textarea id="notice-form-content" class="form-control" placeholder="Write full details, deadlines, eligibility criteria, and contact information..." required></textarea>
+              </div>
+
+              <div class="form-group">
+                <div class="ai-generator-bar">
+                  <label for="notice-form-summary" class="form-label">Executive Summary</label>
+                  <button type="button" class="btn-ai-sparkle" id="btn-auto-summarize">
+                    <i class="bi bi-stars"></i> ✨ Generate AI Summary
+                  </button>
+                </div>
+                <textarea id="notice-form-summary" class="form-control" style="min-height:70px;" placeholder="AI summary will appear here or can be manually written..."></textarea>
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1.5rem;">
+                <button type="reset" class="btn-secondary">Clear Form</button>
+                <button type="submit" class="btn-primary">
+                  <i class="bi bi-send-fill"></i> Save to Database & Publish
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div style="margin-top:2.5rem;">
+            <h3 style="font-size:1.2rem; font-weight:800; margin-bottom:1rem; color:var(--text-main);">My Published Circulars (In Database)</h3>
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Priority</th>
+                    <th>Views</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="faculty-notices-table-body">
+                  <!-- Populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 4: ADMIN PORTAL & ANALYTICS           -->
+      <!-- ========================================== -->
+      <section id="view-admin" class="view-section" aria-labelledby="admin-heading">
+        <div style="max-width:1100px; margin:0 auto;">
+          <div style="margin-bottom:1.5rem;">
+            <h2 id="admin-heading" style="font-size:1.6rem; font-weight:800; color:var(--text-main);">Campus Administration & Analytics 📊</h2>
+            <p style="color:var(--text-muted); font-size:0.88rem;">Overview of database notice records, AI query activity, and user management.</p>
+          </div>
+
+          <div class="admin-metrics-grid">
+            <div class="metric-card">
+              <div class="metric-icon-box indigo"><i class="bi bi-bell-fill"></i></div>
+              <div class="metric-data">
+                <h3 id="metric-total-notices">0</h3>
+                <p>Total Notices</p>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon-box emerald"><i class="bi bi-check-circle-fill"></i></div>
+              <div class="metric-data">
+                <h3 id="metric-active-notices">0</h3>
+                <p>Active Circulars</p>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon-box amber"><i class="bi bi-people-fill"></i></div>
+              <div class="metric-data">
+                <h3 id="metric-total-users">0</h3>
+                <p>Registered Users</p>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon-box rose"><i class="bi bi-cpu-fill"></i></div>
+              <div class="metric-data">
+                <h3 id="metric-ai-queries">0</h3>
+                <p>AI Queries Answered</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-card-container" id="reset-local-database-card" style="margin-bottom:2rem; border-color:var(--urgent);">
+            <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:0.5rem; color:var(--text-main);">Reset Local Demo Database</h3>
+            <p style="color:var(--text-muted); font-size:0.88rem; margin-bottom:1rem;">
+              Restore seeded demo users, notices, categories, and notifications. This permanently removes local changes and query history. MongoDB data is not affected.
+            </p>
+            <button type="button" class="btn-secondary" id="reset-local-database-btn" style="border-color:var(--urgent); color:var(--urgent);">
+              <i class="bi bi-arrow-counterclockwise"></i> Reset to Seeded Demo Data
+            </button>
+          </div>
+
+          <div class="form-card-container" style="margin-bottom:2rem;">
+            <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:1rem; color:var(--text-main);">Add Notice Category to Database</h3>
+            <form id="add-category-form" style="display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end;">
+              <div style="flex:1; min-width:180px;">
+                <label for="new-cat-name" class="form-label">Category Name *</label>
+                <input type="text" id="new-cat-name" class="form-control" placeholder="e.g. Hostels & Mess" required>
+              </div>
+              <div style="flex:2; min-width:240px;">
+                <label for="new-cat-desc" class="form-label">Description</label>
+                <input type="text" id="new-cat-desc" class="form-control" placeholder="Short description of circulars in this category">
+              </div>
+              <div style="width:70px;">
+                <label for="new-cat-color" class="form-label">Color</label>
+                <input type="color" id="new-cat-color" value="#4f46e5" style="height:38px; width:100%; border:none; border-radius:6px; cursor:pointer;">
+              </div>
+              <button type="submit" class="btn-primary" style="height:38px;">Save Category</button>
+            </form>
+          </div>
+
+          <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:1rem; color:var(--text-main);">Authorized Users in Database</h3>
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Department</th>
+                  <th>Year / Scope</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-table-body">
+                <!-- Populated by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- VIEW 5: BOOKMARKED NOTICES                 -->
+      <!-- ========================================== -->
+      <section id="view-saved" class="view-section" aria-labelledby="saved-heading">
+        <div style="margin-bottom:1.5rem;">
+          <h2 id="saved-heading" style="font-size:1.6rem; font-weight:800; color:var(--text-main);">Saved Notices 🔖</h2>
+          <p style="color:var(--text-muted); font-size:0.88rem;">Quick access to circulars you've bookmarked.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Site Footer -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div>
+          <strong>AI Powered College Notice Board</strong> · B.Tech Artificial Intelligence and Data Science (2026 - 2027)
+        </div>
+        <div style="color:var(--text-dim);" id="footer-db-status">
+          Database: MongoDB with Mongoose Models (Active)
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: NOTICE DETAIL                       -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop" id="modal-notice-detail" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="detail-modal-title">Notice Details</h3>
+        <button class="modal-close-btn" onclick="App.closeModal('modal-notice-detail')" aria-label="Close modal">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="detail-modal-body">
+        <!-- Content inserted dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="window.print()"><i class="bi bi-printer"></i> Print</button>
+        <button class="btn-primary" onclick="App.closeModal('modal-notice-detail')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ATTACHMENT VIEWER                   -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop" id="modal-attachment-viewer" role="dialog" aria-modal="true" aria-labelledby="attach-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="attach-modal-title">Official Attachment</h3>
+        <button class="modal-close-btn" onclick="App.closeModal('modal-attachment-viewer')" aria-label="Close modal">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="attach-modal-body">
+        <!-- Attachment preview inserted dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="App.closeModal('modal-attachment-viewer')">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- IN-APP NOTIFICATION DRAWER                 -->
+  <!-- ========================================== -->
+  <div class="notif-drawer" id="notification-drawer" role="region" aria-label="Notifications Drawer">
+    <div class="notif-drawer-header">
+      <span><i class="bi bi-bell-fill" style="color:var(--primary);"></i> Campus Notifications</span>
+      <button class="filter-chip-clear" style="padding:0; font-size:0.75rem;" onclick="App.markAllNotificationsRead()">Mark all read</button>
+    </div>
+    <div class="notif-list" id="notif-drawer-list">
+      <!-- Populated dynamically -->
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/ai-chat.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign in to CampusPulse AI, your college notice board.">
+  <title>Sign in · CampusPulse AI</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body class="login-page">
+  <div class="ambient-glow" aria-hidden="true">
+    <div class="ambient-blob-1"></div>
+    <div class="ambient-blob-2"></div>
+  </div>
+
+  <main class="login-layout">
+    <section class="login-intro" aria-labelledby="login-brand">
+      <a class="login-brand" href="/login" aria-label="CampusPulse AI home">
+        <span class="login-brand-icon"><i class="bi bi-mortarboard-fill"></i></span>
+        <span>
+          <strong id="login-brand">CampusPulse AI</strong>
+          <small>Autonomous Notice Portal</small>
+        </span>
+      </a>
+
+      <div class="login-intro-copy">
+        <span class="login-eyebrow"><i class="bi bi-stars"></i> Your campus, in one place</span>
+        <h1>Stay informed.<br><span>Move forward.</span></h1>
+        <p>Find official notices, keep up with campus updates, and get grounded answers from your college board.</p>
+      </div>
+
+      <div class="login-feature-list">
+        <div><i class="bi bi-bell"></i><span>Personalized campus notices</span></div>
+        <div><i class="bi bi-search"></i><span>Search and save important updates</span></div>
+        <div><i class="bi bi-stars"></i><span>Ask the Board AI assistant</span></div>
+      </div>
+      <div class="login-academic-label">B.Tech Artificial Intelligence &amp; Data Science · 2026–2027</div>
+    </section>
+
+    <section class="login-panel" aria-labelledby="login-title">
+      <div class="login-panel-heading">
+        <div class="login-panel-icon"><i class="bi bi-shield-lock"></i></div>
+        <h2 id="login-title">Welcome back</h2>
+        <p>Sign in with your campus account to continue.</p>
+      </div>
+
+      <form id="login-form" class="login-form">
+        <div class="login-field">
+          <label for="login-email">Email address</label>
+          <div class="login-input-wrap">
+            <i class="bi bi-envelope"></i>
+            <input id="login-email" name="email" type="email" autocomplete="username" placeholder="you@college.edu" required autofocus>
+          </div>
+        </div>
+
+        <div class="login-field">
+          <label for="login-password">Password</label>
+          <div class="login-input-wrap">
+            <i class="bi bi-lock"></i>
+            <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+            <button type="button" id="toggle-password" class="password-toggle" aria-label="Show password" aria-pressed="false">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <p id="login-error" class="login-error" role="alert" aria-live="polite" hidden></p>
+        <button type="submit" id="login-submit" class="login-submit">
+          <span>Sign in</span><i class="bi bi-arrow-right"></i>
+        </button>
+      </form>
+
+      <details class="demo-access">
+        <summary><i class="bi bi-person-badge"></i> Try a demo account</summary>
+        <p>Select an account to fill its credentials, then sign in.</p>
+        <div class="demo-account-list">
+          <button type="button" class="demo-account" data-email="student.aids3@college.edu" data-password="student123">
+            <span class="demo-account-avatar student"><i class="bi bi-mortarboard"></i></span>
+            <span><strong>Karthik R</strong><small>Student · AI &amp; DS</small></span>
+            <i class="bi bi-arrow-up-right demo-account-action"></i>
+          </button>
+          <button type="button" class="demo-account" data-email="faculty.aids@college.edu" data-password="faculty123">
+            <span class="demo-account-avatar faculty"><i class="bi bi-person-workspace"></i></span>
+            <span><strong>Prof. Priya Sundaram</strong><small>Faculty · AI &amp; DS</small></span>
+            <i class="bi bi-arrow-up-right demo-account-action"></i>
+          </button>
+          <button type="button" class="demo-account" data-email="admin@college.edu" data-password="admin123">
+            <span class="demo-account-avatar admin"><i class="bi bi-shield-check"></i></span>
+            <span><strong>Dr. S. Ramanathan</strong><small>Administrator</small></span>
+            <i class="bi bi-arrow-up-right demo-account-action"></i>
+          </button>
+        </div>
+      </details>
+
+      <div class="login-panel-footer"><i class="bi bi-lock-fill"></i> Secure campus account sign-in</div>
+    </section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

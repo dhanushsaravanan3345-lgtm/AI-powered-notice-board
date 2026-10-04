@@ -67,17 +67,20 @@ The **AI Powered College Notice Board** modernizes campus communication by repla
 ├── services/
 │   └── aiService.js      # Grounded RAG Q&A engine, summarizer & query generator
 ├── routes/
-│   ├── auth.js           # Authentication, JWT, and demo role switcher
+│   ├── auth.js           # Registration, login, and JWT authentication
 │   ├── notices.js        # Notice CRUD, filtering, bookmarks, view counter
 │   ├── ai.js             # Ask the Board & AI Summarize endpoints
 │   ├── admin.js          # Campus stats, metrics, users, categories
 │   └── notifications.js  # In-app notification delivery
 └── public/
-    ├── index.html        # Single-page web application UI
+    ├── login.html        # Standalone campus sign-in page
+    ├── index.html        # Authenticated single-page application UI
     ├── css/
-    │   └── style.css     # Design system, dark/light themes, animations
+    │   ├── style.css     # Design system, dark/light themes, animations
+    │   └── login.css     # Responsive sign-in page styling
     └── js/
         ├── api.js        # Frontend REST API client
+        ├── login.js      # Sign-in form and session validation
         ├── ai-chat.js    # "Ask the Board" RAG interactive module
         └── app.js        # Application controller, filters, state management
 ```
@@ -96,17 +99,18 @@ npm install
 npm start
 ```
 
-### 3. Open in Browser
+### 3. Sign In
 Navigate to:
 ```
 http://localhost:3000
 ```
+Sign in with a campus account. For a demo, expand **Try a demo account** on the sign-in page and select an account to fill in its credentials.
 
 ---
 
-## 🔑 Pre-Configured Test Accounts (1-Click Switcher Available in UI)
+## 🔑 Pre-Configured Test Accounts
 
-You can switch between any of these roles instantly from the top-right profile badge in the application:
+Use these accounts on the separate sign-in page:
 
 | Role | Name | Email | Password | Scope |
 |---|---|---|---|---|
@@ -123,8 +127,6 @@ You can switch between any of these roles instantly from the top-right profile b
 ### Authentication
 - `POST /api/auth/register` — Register a new student or faculty account.
 - `POST /api/auth/login` — Sign in and obtain JWT token.
-- `GET /api/auth/demo-users` — Retrieve pre-configured demo profiles.
-- `POST /api/auth/switch-demo` — Quick-switch demo account.
 
 ### Notices
 - `GET /api/notices` — Query notices with filters: `search`, `category`, `priority`, `department`, `year`, `savedOnly`.
